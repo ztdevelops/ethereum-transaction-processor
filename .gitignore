@@ -1,0 +1,13 @@
+# IDE-specific files
+.idea
+.vscode
+
+# auto-generated files
+htmlcov
+.venv
+.coverage
+*.pyc
+
+# hidden files
+.env*
+!.env.example
