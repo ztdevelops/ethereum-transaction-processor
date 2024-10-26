@@ -1,0 +1,25 @@
+name: Tokka Labs Software Engineering Challenge 1 CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  run-unit-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage==7.6.1
+      - name: Run tests
+        run: |
+          cd backend
+          coverage run -m unittest discover
