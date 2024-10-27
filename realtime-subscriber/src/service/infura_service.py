@@ -1,10 +1,10 @@
 import asyncio
 
+from service.broker_service import BrokerService
+from service.etherscan_service import EtherscanService
+from utils.config import Config
 from web3 import AsyncWeb3
 from web3.providers import WebSocketProvider
-
-from src.app.service.etherscan_service import EtherscanService
-from src.app.utils.config.config import Config
 
 config = Config()
 
@@ -16,6 +16,7 @@ class InfuraService:
 
     INFURA_URL = "wss://mainnet.infura.io/ws/v3"
     __etherscan_service = None
+    __broker_service = None
 
     async_web3 = None
     __contract_address = None
@@ -23,23 +24,26 @@ class InfuraService:
     __infura_project_id = None
 
     def __init__(self,
-                 es: EtherscanService,
+                 etherscan_service: EtherscanService,
+                 broker_service: BrokerService,
                  infura_project_id: str,
                  contract_address: str = None,
                  contract_abi_address: str = None,
                  poll_interval: int = None
-    ):
+                 ):
         """
         Initialize the InfuraService with the given API key.
 
         Args:
-            es (EtherscanService): An instance of the EtherscanService.
+            etherscan_service (EtherscanService): An instance of the EtherscanService.
+            broker_service (BrokerService): An instance of the BrokerService.
             infura_project_id (str): The API key for authenticating requests to the Infura API.
             contract_address (str, optional): The address of the contract to listen for events. Defaults to None.
             contract_abi_address (str, optional): The address to fetch the contract ABI from. Defaults to None.
         """
+        self.__etherscan_service = etherscan_service
+        self.__broker_service = broker_service
         self.__infura_project_id = infura_project_id
-        self.__etherscan_service = es
         self.__poll_interval = poll_interval
 
         if contract_address is None:
@@ -53,7 +57,7 @@ class InfuraService:
             self.__contract_abi_address = contract_abi_address
 
         if poll_interval is None:
-            self.__poll_interval = config.get("INFURA_POLL_INTERVAL")
+            self.__poll_interval = int(config.get("INFURA_POLL_INTERVAL"))
         else:
             self.__poll_interval = poll_interval
 
@@ -92,8 +96,10 @@ class InfuraService:
         while True:
             try:
                 new_events = await swap_event_filter.get_new_entries()
+                print(f"Received {len(new_events)} new events")
                 for event in new_events:
-                    print(event)
+                    self.__broker_service.send("transaction_message", "transactions", event)
+                self.__broker_service.flush()
             except Exception as e:
                 print(f"Error: {e}")
             finally:

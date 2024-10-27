@@ -25,6 +25,7 @@ class Config:
             load_dotenv()
 
             cls.__instance.__configs = {
+                "KAFKA_BROKER_URL": os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
                 "DATABASE_URL": os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/postgres"),
                 "ETHERSCAN_API_KEY": os.getenv("ETHERSCAN_API_KEY", "default-etherscan-api-key"),
                 "ETHERSCAN_CONTRACT_ABI_ADDRESS": os.getenv("ETHERSCAN_CONTRACT_ABI_ADDRESS", "default-etherscan-contract-address"),
