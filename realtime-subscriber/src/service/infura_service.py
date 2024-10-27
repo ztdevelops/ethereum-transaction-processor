@@ -12,6 +12,15 @@ config = Config()
 class InfuraService:
     """
     A service class to interact with the Infura Web3 provider using websockets.
+
+    Attributes:
+        INFURA_URL (str): The base URL for the Infura Web3 provider.
+        __etherscan_service (EtherscanService): Service for interacting with the Etherscan API.
+        __broker_service (BrokerService): Service for sending messages to a broker.
+        async_web3 (AsyncWeb3): An instance of AsyncWeb3 connected to the Infura provider.
+        __contract_address (str): The address of the contract to listen for events.
+        __contract_abi_address (str): The address to fetch the contract ABI from.
+        __infura_project_id (str): The API key for authenticating requests to the Infura API.
     """
 
     INFURA_URL = "wss://mainnet.infura.io/ws/v3"
@@ -40,6 +49,7 @@ class InfuraService:
             infura_project_id (str): The API key for authenticating requests to the Infura API.
             contract_address (str, optional): The address of the contract to listen for events. Defaults to None.
             contract_abi_address (str, optional): The address to fetch the contract ABI from. Defaults to None.
+            poll_interval (int, optional): The interval in seconds to poll for new events. Defaults to None.
         """
         self.__etherscan_service = etherscan_service
         self.__broker_service = broker_service

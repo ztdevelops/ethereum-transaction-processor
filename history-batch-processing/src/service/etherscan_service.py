@@ -3,6 +3,13 @@ from utils.rest_util import RestUtil
 
 
 class EtherscanService:
+    """
+    Service for interacting with the Etherscan API to retrieve historical Ethereum transactions.
+
+    Attributes:
+        ETHERSCAN_API_BASE_URL (str): The base URL for the Etherscan API.
+        __etherscan_api_key (str): The API key for authenticating requests to the Etherscan API.
+    """
     ETHERSCAN_API_BASE_URL = "https://api.etherscan.io/api"
     __etherscan_api_key = None
 
@@ -25,7 +32,6 @@ class EtherscanService:
         Returns:
             dict or None: The JSON response from the Etherscan API if the request is successful, otherwise None.
         """
-
         params = {
             "module": "account",
             "action": "tokentx",

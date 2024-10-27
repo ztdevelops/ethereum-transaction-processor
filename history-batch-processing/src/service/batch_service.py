@@ -7,6 +7,16 @@ config = Config()
 
 
 class BatchService:
+    """
+    Service for processing historical Ethereum transactions in batches.
+
+    Attributes:
+        __etherscan_service (EtherscanService): Service for interacting with Etherscan API.
+        __broker_service (BrokerService): Service for sending messages to a broker.
+        __first_block (int): The first block number to start processing from.
+        __last_block (int): The last block number to process up to.
+        __batch_size (int): The number of blocks to process in each batch.
+    """
     __etherscan_service = None
     __broker_service = None
     __first_block = None
@@ -26,6 +36,9 @@ class BatchService:
         Args:
             etherscan_service (EtherscanService): An instance of the EtherscanService.
             broker_service (BrokerService): An instance of the BrokerService.
+            first_block (int, optional): The first block number to start processing from. Defaults to None.
+            last_block (int, optional): The last block number to process up to. Defaults to None.
+            batch_size (int, optional): The number of blocks to process in each batch. Defaults to None.
         """
         self.__etherscan_service = etherscan_service
         self.__broker_service = broker_service

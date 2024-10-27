@@ -6,6 +6,16 @@ from web3.datastructures import AttributeDict
 
 
 class BrokerService:
+    """
+    Service for sending messages to a broker.
+
+    Attributes:
+        __broker_url (str): The URL of the broker to connect to.
+        producer (Producer): The Kafka producer instance.
+    """
+    __broker_url = None
+    __producer = None
+
     def __init__(self, broker_url: str):
         """
         Initializes the BrokerService with the given broker URL.
@@ -14,28 +24,39 @@ class BrokerService:
             broker_url (str): The URL of the broker to connect to.
         """
         self.__broker_url = broker_url
-        self.producer = Producer({"bootstrap.servers": self.__broker_url})
+        self.__producer = Producer({"bootstrap.servers": self.__broker_url})
 
     def send(self, avro_schema_name: str, topic: str, message: dict):
         """
         Sends a message to the given topic.
 
         Args:
-            avro_schema_name (str): The name of the Avro schema to use for serialisation.
+            avro_schema_name (str): The name of the Avro schema to use for serialization.
             topic (str): The topic to send the message to.
             message (dict): The message to send.
         """
-
         if isinstance(message, AttributeDict):
             message = self.__convert_to_dict(message)
 
         json_message = json.dumps(message)
-        self.producer.produce(topic, value=json_message.encode("utf-8"))
+        self.__producer.produce(topic, value=json_message.encode("utf-8"))
 
     def flush(self):
-        self.producer.flush()
+        """
+        Flushes the producer, ensuring all messages are sent.
+        """
+        self.__producer.flush()
 
     def __convert_to_dict(self, attr_dict):
+        """
+        Recursively converts AttributeDict and HexBytes objects to regular Python dictionaries and strings.
+
+        Args:
+            attr_dict (AttributeDict or list or HexBytes): The object to convert.
+
+        Returns:
+            dict or list or str: The converted object.
+        """
         if isinstance(attr_dict, AttributeDict):
             return {k: self.__convert_to_dict(v) for k, v in attr_dict.items()}
         elif isinstance(attr_dict, list):
