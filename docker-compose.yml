@@ -39,3 +39,14 @@ services:
     depends_on:
       broker:
         condition: service_healthy
+
+  data-sink:
+    build:
+      context: ./data-sink/
+      dockerfile: Dockerfile
+    env_file:
+      - data-sink/.env
+    restart: unless-stopped
+    depends_on:
+      broker:
+        condition: service_healthy
