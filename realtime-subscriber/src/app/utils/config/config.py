@@ -23,9 +23,15 @@ class Config:
         if not cls.__instance:
             cls.__instance = super(Config, cls).__new__(cls)
             load_dotenv()
+
             cls.__instance.__configs = {
                 "DATABASE_URL": os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/postgres"),
+                "ETHERSCAN_API_KEY": os.getenv("ETHERSCAN_API_KEY", "default-etherscan-api-key"),
+                "ETHERSCAN_CONTRACT_ABI_ADDRESS": os.getenv("ETHERSCAN_CONTRACT_ABI_ADDRESS", "default-etherscan-contract-address"),
+                "INFURA_PROJECT_ID": os.getenv("INFURA_PROJECT_ID", "default-infura-project-id"),
+                "INFURA_POLL_INTERVAL": os.getenv("INFURA_POLL_INTERVAL", 5)
             }
+
         return cls.__instance
 
     def __getitem__(self, key):

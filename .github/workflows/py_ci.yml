@@ -15,11 +15,11 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          cd backend
+          cd realtime-subscriber
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install coverage==7.6.1
       - name: Run tests
         run: |
-          cd backend
+          cd realtime-subscriber
           coverage run -m unittest discover
