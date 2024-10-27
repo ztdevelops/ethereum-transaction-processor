@@ -50,3 +50,14 @@ services:
     depends_on:
       broker:
         condition: service_healthy
+
+  history-batch-processing:
+    build:
+      context: ./history-batch-processing/
+      dockerfile: Dockerfile
+    env_file:
+      - history-batch-processing/.env
+    restart: on-failure
+    depends_on:
+      broker:
+        condition: service_healthy
