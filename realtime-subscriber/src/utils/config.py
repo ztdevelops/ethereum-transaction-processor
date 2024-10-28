@@ -9,6 +9,10 @@ class Config:
 
     This class loads environment variables from a .env file and provides
     access to configuration values.
+
+    Attributes:
+        __instance (Config): The singleton instance of the Config class.
+        __configs (dict): A dictionary of configuration values
     """
     __instance = None
     __configs = None

@@ -4,6 +4,9 @@ from confluent_kafka import Consumer
 class KafkaConsumerService:
     """
     A service that consumes messages from a Kafka topic.
+
+    Attributes:
+        __consumer (Consumer): The Kafka consumer instance.
     """
     __consumer = None
 

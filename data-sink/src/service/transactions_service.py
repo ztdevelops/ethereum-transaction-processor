@@ -7,6 +7,9 @@ from repository.transactions_repository import TransactionsRepository
 class TransactionsService:
     """
     Service class for handling transactions.
+
+    Attributes:
+        __transactions_repository (TransactionsRepository): An instance of TransactionsRepository to interact with the MongoDB database.
     """
     __transactions_repository = None
 

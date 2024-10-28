@@ -2,6 +2,14 @@ from pymongo import MongoClient
 
 
 class MongoDBConnector:
+    """
+    A class for connecting to a MongoDB database.
+
+    Attributes:
+        __client (MongoClient): The MongoDB client instance.
+    """
+    __client = None
+
     def __init__(self, mongodb_url: str):
         """
         Initializes the MongoDBConnector with the given MongoDB URL.
@@ -9,7 +17,7 @@ class MongoDBConnector:
         Args:
             mongodb_url (str): The URL of the MongoDB database to connect to.
         """
-        self.client = MongoClient(mongodb_url)
+        self.__client = MongoClient(mongodb_url)
 
     def get_database(self, database_name: str):
         """
@@ -21,7 +29,7 @@ class MongoDBConnector:
         Returns:
             Database: The MongoDB database.
         """
-        return self.client[database_name]
+        return self.__client[database_name]
 
     def get_collection(self, database_name: str, collection_name: str):
         """

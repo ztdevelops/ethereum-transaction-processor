@@ -1,4 +1,8 @@
 class EthUtil:
+    """
+    Utility class for Ethereum-related functions.
+    """
+
     @staticmethod
     def gas_to_eth(gas_used: int, gas_price: int):
         """

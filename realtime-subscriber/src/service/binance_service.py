@@ -9,6 +9,13 @@ from cachetools import TTLCache
 class BinanceService:
     """
     A service class to interact with the Binance API using websockets.
+
+    Attributes:
+        BINANCE_API_BASE_URL (str): The base URL for the Binance API.
+        __api_key (str): The API key for authenticating requests to the Binance API.
+        __ws (websockets.WebSocketClientProtocol): The WebSocket connection to the Binance API.
+        __pending_requests (dict): A dictionary of pending requests.
+        __ethusdt_cache (TTLCache): A cache for storing ETH/USDT prices.
     """
     BINANCE_API_BASE_URL = "wss://ws-api.binance.com:443/ws-api/v3"
     __api_key = None

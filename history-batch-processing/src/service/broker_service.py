@@ -11,7 +11,7 @@ class BrokerService:
 
     Attributes:
         __broker_url (str): The URL of the broker to connect to.
-        producer (Producer): The Kafka producer instance.
+        __producer (Producer): The Kafka producer instance.
     """
     __broker_url = None
     __producer = None

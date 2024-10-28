@@ -4,6 +4,9 @@ from utils.mongodb_connector import MongoDBConnector
 class TransactionsRepository:
     """
     Repository class for managing transactions in the MongoDB database.
+
+    Attributes:
+        __db_connector (MongoDBConnector): An instance of MongoDBConnector to interact with the MongoDB database.
     """
     __db_connector = None
 
