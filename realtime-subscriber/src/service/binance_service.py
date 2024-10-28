@@ -19,6 +19,9 @@ class BinanceService:
     def __init__(self, cache_ttl: int = 60):
         """
         Initializes the BinanceService instance.
+
+        Args:
+            cache_ttl (int): Time-to-live for cache entries in seconds. Defaults to 60 seconds.
         """
         self.__pending_requests = {}
         self.__ethusdt_cache = TTLCache(maxsize=100, ttl=cache_ttl)
