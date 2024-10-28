@@ -50,7 +50,7 @@ services:
       context: transactions-realtime/
       dockerfile: Dockerfile
     env_file:
-      - transactions-realtime/.env
+      - .env
     restart: unless-stopped
     depends_on:
       broker:
@@ -61,7 +61,7 @@ services:
       context: transactions-historical/
       dockerfile: Dockerfile
     env_file:
-      - transactions-historical/.env
+      - .env
     restart: on-failure
     depends_on:
       broker:
@@ -72,7 +72,7 @@ services:
       context: ./message-consumer/
       dockerfile: Dockerfile
     env_file:
-      - message-consumer/.env
+      - .env
     restart: unless-stopped
     depends_on:
       broker:
@@ -87,7 +87,7 @@ services:
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/v1/transactions/healthz" ]
     env_file:
-      - endpoint-server/.env
+      - .env
     restart: unless-stopped
     depends_on:
       db:
