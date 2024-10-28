@@ -80,12 +80,6 @@ f93d247fb660   mongo:8.0.3                       "docker-entrypoint.s…"   Abou
 ```
 
 3. Access the API documentation at `http://localhost:8000/docs`.
-   The endpoints supported are as follows:
-
-- `GET /api/v1/transactions/{transaction_hash}`: Get a transaction by its hash.
--
-`GET /api/v1/transactions?start_timestamp={start_timestamp}&end_timestamp={end_timestamp}=&page={page}&page_size={page_size}`:
-Get transactions within a time range and paginated.
 
 4. Tear down the application:
 
@@ -108,31 +102,37 @@ It is composed of the following components:
 
 ![Architecture Diagram](./assets/overview.png)
 
-### Decoupled components
+### Decoupled Components
 
 The system was designed with decoupled components to ensure that each component is responsible for its own task. This
 ensures that the components can be scaled individually and performs independent of each other. This is achieved through
 having four different components with Kafka as the bridge for communication, allowing for an event-driven architecture
 supporting asynchronous processing.
 
-## NoSQL Database (MongoDB)
+### NoSQL Database (MongoDB)
 
 This system requires heavy read-write operations without the need to join records from different collections. MongoDB
 was chosen as the database for this system due to its flexibility and scalability. It is a NoSQL database that stores
 data in JSON-like documents, making it easy to store and retrieve data. It also supports horizontal scaling, which is
 important for handling large volumes of data.
 
-## Message Broker (Kafka)
+### Message Broker (Kafka)
 
 Kafka was chosen as the message broker for this system for its partitioning, which is not supported by traditional
 message brokers like RabbitMQ. This allows for the parallel processing of messages across multiple consumers, which is
 important for scaling the system. Kafka also provides fault tolerance and high availability, ensuring that messages are
 not lost in the event of a failure.
 
-## Websockets
+### Websockets
 
 Websockets were used where we expect continuous data ingestion, such as with Infura for event consumption and Binance
-for
-fetching of ETH/USDT prices at specific timestamps. This minimises the overhead of establishing a new connection for
-each
-request, allowing for real-time data updates.
+for fetching of ETH/USDT prices at specific timestamps. This minimises the overhead of establishing a new connection for
+each request, allowing for real-time data updates.
+
+### In-memory Caching
+
+When we receive a batch of transactions, either from the historical or real-time component, the transactions often have
+similar timestamps. To avoid requesting for the ETH/USDT price from Binance for each transaction, we cache the price
+for a specific timestamp in memory. This reduces the number of requests made to the Binance API, improving performance.
+The cache is implemented as a LRU cache that stores the last 100 timestamps, with each key having a TTL of 1 minute to
+ensure that the cache does not grow indefinitely.
