@@ -3,6 +3,7 @@ import json
 import uuid
 
 import websockets
+from cachetools import TTLCache
 
 
 class BinanceService:
@@ -13,12 +14,14 @@ class BinanceService:
     __api_key = None
     __ws = None
     __pending_requests = None
+    __ethusdt_cache = None
 
-    def __init__(self):
+    def __init__(self, cache_ttl: int = 60):
         """
         Initializes the BinanceService instance.
         """
         self.__pending_requests = {}
+        self.__ethusdt_cache = TTLCache(maxsize=100, ttl=cache_ttl)
 
     async def __ws_connect(self):
         """
@@ -40,6 +43,9 @@ class BinanceService:
         Returns:
             float: The close price of ETH/USDT at the given timestamp.
         """
+        if timestamp in self.__ethusdt_cache:
+            return self.__ethusdt_cache[timestamp]
+
         await self.__ws_connect()
         request_id = uuid.uuid4()
         payload = {
@@ -58,6 +64,7 @@ class BinanceService:
         response = await self.__pending_requests[request_id]
         close_price = float(response["result"][0][4])
 
+        self.__ethusdt_cache[timestamp] = close_price
         return close_price
 
     async def __listen(self):
