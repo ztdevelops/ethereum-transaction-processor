@@ -42,8 +42,6 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongodb-data:/data/db
-    ports:
-      - "27017:27017"
 
   transactions-realtime:
     build:
