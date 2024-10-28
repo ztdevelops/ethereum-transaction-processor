@@ -6,4 +6,4 @@ WORKDIR /app
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 ADD src/ src/
-CMD ["python3", "src/main.py"]
+CMD ["fastapi", "run", "src/main.py"]

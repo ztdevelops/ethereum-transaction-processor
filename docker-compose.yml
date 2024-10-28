@@ -85,7 +85,7 @@ services:
       context: ./endpoint-server/
       dockerfile: Dockerfile
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/v1/transactions/healthz" ]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/api/v1/transactions/healthz" ]
     env_file:
       - .env
     restart: unless-stopped
@@ -93,7 +93,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8000:8000"
 
 volumes:
   mongodb-data:
