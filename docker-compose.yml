@@ -29,6 +29,20 @@ services:
       zookeeper:
         condition: service_healthy
 
+  db:
+    image: mongo:8.0.3
+    healthcheck:
+      test: [ "CMD-SHELL", "echo 'db.runCommand(\"ping\").ok' | mongosh localhost:27017/test --quiet" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodb-data:/data/db
+
   realtime-subscriber:
     build:
       context: ./realtime-subscriber/
@@ -50,6 +64,8 @@ services:
     depends_on:
       broker:
         condition: service_healthy
+      db:
+        condition: service_healthy
 
   history-batch-processing:
     build:
@@ -61,3 +77,6 @@ services:
     depends_on:
       broker:
         condition: service_healthy
+
+volumes:
+  mongodb-data:
