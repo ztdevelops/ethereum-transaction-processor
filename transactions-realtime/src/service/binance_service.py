@@ -64,7 +64,6 @@ class BinanceService:
             "params": {
                 "symbol": "ETHUSDT",
                 "interval": "1m",
-                "startTime": timestamp,
                 "limit": 1
             }
         }
