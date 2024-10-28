@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  run-unit-tests:
+  run-transactions-realtime-unit-tests:
     runs-on: ubuntu-22.04
 
     steps:
@@ -15,11 +15,11 @@ jobs:
           python-version: '3.10'
       - name: Install dependencies
         run: |
-          cd realtime-subscriber
+          cd transactions-realtime
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install coverage==7.6.1
       - name: Run tests
         run: |
-          cd realtime-subscriber
+          cd transactions-realtime
           coverage run -m unittest discover
