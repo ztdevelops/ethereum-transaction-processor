@@ -42,40 +42,42 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - mongodb-data:/data/db
+    ports:
+      - "27017:27017"
 
-  realtime-subscriber:
+  transactions-realtime:
     build:
-      context: ./realtime-subscriber/
+      context: transactions-realtime/
       dockerfile: Dockerfile
     env_file:
-      - realtime-subscriber/.env
+      - transactions-realtime/.env
     restart: unless-stopped
     depends_on:
       broker:
         condition: service_healthy
 
-  data-sink:
+  transactions-historical:
     build:
-      context: ./data-sink/
+      context: transactions-historical/
       dockerfile: Dockerfile
     env_file:
-      - data-sink/.env
+      - transactions-historical/.env
+    restart: on-failure
+    depends_on:
+      broker:
+        condition: service_healthy
+
+  message-consumer:
+    build:
+      context: ./message-consumer/
+      dockerfile: Dockerfile
+    env_file:
+      - message-consumer/.env
     restart: unless-stopped
     depends_on:
       broker:
         condition: service_healthy
       db:
-        condition: service_healthy
-
-  history-batch-processing:
-    build:
-      context: ./history-batch-processing/
-      dockerfile: Dockerfile
-    env_file:
-      - history-batch-processing/.env
-    restart: on-failure
-    depends_on:
-      broker:
         condition: service_healthy
 
   endpoint-server:
