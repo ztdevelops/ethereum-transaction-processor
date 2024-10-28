@@ -63,7 +63,8 @@ class BinanceService:
             "method": "klines",
             "params": {
                 "symbol": "ETHUSDT",
-                "interval": "1m",
+                "interval": "1s",
+                "startTime": timestamp * 1000,
                 "limit": 1
             }
         }
