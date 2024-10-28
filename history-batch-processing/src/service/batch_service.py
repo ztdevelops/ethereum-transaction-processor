@@ -101,6 +101,7 @@ class BatchService:
         print(f"Found {len(historical_data.get('result'))} transactions in batch.")
         for transaction in historical_data.get("result"):
             processed_transaction = await self.__process_transaction(transaction)
+            print(f"Writing to broker: {processed_transaction}")
             self.__broker_service.send("", "transactions", processed_transaction)
         self.__broker_service.flush()
 

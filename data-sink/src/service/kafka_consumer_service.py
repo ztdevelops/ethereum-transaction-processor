@@ -1,4 +1,8 @@
+from typing import List
+
 from confluent_kafka import Consumer
+from confluent_kafka.admin import AdminClient
+from confluent_kafka.cimpl import NewTopic
 
 
 class KafkaConsumerService:
@@ -7,8 +11,10 @@ class KafkaConsumerService:
 
     Attributes:
         __consumer (Consumer): The Kafka consumer instance.
+        __admin_client (AdminClient): The Kafka admin client instance.
     """
     __consumer = None
+    __admin_client = None
 
     def __init__(self, broker_url: str, group_id: str, topics: list):
         """
@@ -25,6 +31,9 @@ class KafkaConsumerService:
             'group.id': group_id,
             'auto.offset.reset': 'earliest'
         })
+        self.__admin_client = AdminClient({'bootstrap.servers': broker_url})
+        self.__create_topics_if_not_exists(topics)
+
         self.__consumer.subscribe(topics)
 
     async def consume_messages(self, callback):
@@ -51,3 +60,13 @@ class KafkaConsumerService:
         Closes the Kafka consumer.
         """
         self.__consumer.close()
+
+    def __create_topics_if_not_exists(self, topics: List[str], num_partitions: int = 1, replication_factor: int = 1):
+        topic_metadata = self.__admin_client.list_topics(timeout=10)
+        for topic in topics:
+            if topic not in topic_metadata.topics:
+                new_topic = NewTopic(topic, num_partitions=num_partitions, replication_factor=replication_factor)
+                self.__admin_client.create_topics([new_topic])
+                print(f"Topic '{topic}' created.")
+            else:
+                print(f"Topic '{topic}' already exists.")

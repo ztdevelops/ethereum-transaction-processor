@@ -31,4 +31,6 @@ class TransactionsService:
         """
         transaction_json_string = transaction.value().decode("utf-8")
         transaction = json.loads(transaction_json_string)
+
+        print(f"Received transaction: {transaction}")
         self.__transactions_repository.write_transaction(transaction)
