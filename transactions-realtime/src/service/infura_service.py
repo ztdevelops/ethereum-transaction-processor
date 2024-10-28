@@ -152,57 +152,17 @@ class InfuraService:
         """
         if isinstance(event, AttributeDict):
             event = self.__convert_to_dict(event)
-        """
-        {'args':
-            {
-            'sender':'0xB28Ca7e465C452cE4252598e0Bc96Aeba553CF82',
-            'recipient': '0xB28Ca7e465C452cE4252598e0Bc96Aeba553CF82',
-            'amount0': 1553384051,
-            'amount1': -623686833682465569,
-            'sqrtPriceX96': 1587607747397006674843391380117439,
-            'liquidity': 3453266154559104021,
-            'tick': 198118
-            },
-            'event': 'Swap',
-            'logIndex': 198,
-            'transactionIndex': 54,
-            'transactionHash': '5acdcee50a4f2ee23e6fb5fc84000305e7927c52ee15cea2c692d8cc8fabbb02',
-            'address': '0xE0554a476A092703abdB3Ef35c80e0D76d32939F',
-            'blockHash':
-            'fe20e60895eb5eb021e24a91b5d9c5fa7d234a7b2f8d56d3ae223089d377a95c',
-            'blockNumber': 21061355}
-        """
+
         transaction_hash = event.get("transactionHash")
         transaction = await self.__async_web3.eth.get_transaction(transaction_hash)
-        """
-        AttributeDict({
-            'accessList': [],
-            'blockHash': HexBytes('0x3e3a0ea797d3047b1e76ad98b0924f81b53cdbf0d9f85fb3d4530bc605030e75'),
-            'blockNumber': 21061533,
-            'chainId': 1,
-            'from': '0xbBbE8Aa2B8ec376259f1b0Ef9632917317B29009',
-            'gas': 218140,
-            'gasPrice': 5701306827,
-            'hash': HexBytes('0x46e30f7f85bb54ef416c26d7e80ac8704d87612fdefb99c96ef370abb245a491'),
-            'input': HexBytes('0x12aa3caf0000000000000000000000003451b6b219478037a1ac572706627fc2bda1e812000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee00000000000000000000000085f138bfee4ef8e540890cfb48f620571d67eda30000000000000000000000003451b6b219478037a1ac572706627fc2bda1e812000000000000000000000000bbbe8aa2b8ec376259f1b0ef9632917317b29009000000000000000000000000000000000000000000000000000a0ba3581854c800000000000000000000000000000000000000000000000003a56e1efe3ea186000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000160000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000ef0000000000000000000000000000000000000000d100006e00005400004e802026678dcd0000000000000000000000000000000000000000382ffce2287252f930e1c8dc9328dac5bf282ba1000000000000000000000000000000000000000000000000000019b764b8903500206b4be0b94041c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2d0e30db002a000000000000000000000000000000000000000000000000003a56e1efe3ea186ee63c1e58000c6a247a868dee7e84d16eba22d1ab903108a44c02aaa39b223fe8d0a0e5c4f27ead9083c756cc21111111254eeb25477b68fb85ed929f73a96058200000000000000000000000000000000009a635db5'),
-            'maxFeePerGas': 8267115684,
-            'maxPriorityFeePerGas': 100000000,
-            'nonce': 0,
-            'r': HexBytes('0x8c28e45b594b6f163a8a0339d9dfabb0b1e3503cd906d3748bb72dccc8a120c4'),
-            's': HexBytes('0x61cf6ca728a91479aa5e686390f75448f8cd618ae1109238a866165e8ed02941'),
-            'to': '0x1111111254EEB25477B68fb85Ed929f73A960582',
-            'transactionIndex': 54,
-            'type': 2,
-            'v': 0,
-            'value': 2827545952670920,
-            'yParity': 0
-        })
-        """
+
         gas_used = transaction.get("gas")
         gas_price = transaction.get("gasPrice")
         eth_spent = EthUtil.gas_to_eth(gas_used, gas_price)
+
         block_number = transaction.get("blockNumber")
         block = await self.__async_web3.eth.get_block(block_number)
+
         timestamp = block.get("timestamp")
         ethusdt_close_price = await self.__binance_service.get_ethusdt_price(timestamp)
         eth_spent_usdt = eth_spent * ethusdt_close_price

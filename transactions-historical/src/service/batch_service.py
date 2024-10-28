@@ -114,8 +114,10 @@ class BatchService:
         """
         timestamp = int(transaction.get("timeStamp"))
         transaction_hash = transaction.get("hash")
+
         gas_used = int(transaction.get("gas"))
         gas_price = int(transaction.get("gasPrice"))
+
         eth_spent = EthUtil.gas_to_eth(gas_used, gas_price)
         ethusdt_close_price = await self.__binance_service.get_ethusdt_price(timestamp)
         eth_spent_usdt = eth_spent * ethusdt_close_price
