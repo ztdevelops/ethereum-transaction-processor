@@ -43,6 +43,16 @@ services:
     volumes:
       - mongodb-data:/data/db
 
+  db-indexing-sidecar:
+    build:
+      context: ./mongodb-indexing-sidecar/
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
   transactions-realtime:
     build:
       context: transactions-realtime/
@@ -77,6 +87,8 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
+      db-indexing-sidecar:
+        condition: service_completed_successfully
 
   endpoint-server:
     build:
@@ -90,6 +102,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-indexing-sidecar:
+        condition: service_completed_successfully
     ports:
       - "8000:8000"
 

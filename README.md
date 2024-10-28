@@ -70,13 +70,14 @@ docker ps -a
 
 # Output
 CONTAINER ID   IMAGE                             COMMAND                  CREATED              STATUS                        PORTS                          NAMES
-1a035e996412   tklbs-transactions-historical     "python3 src/main.py"    About a minute ago   Up 5 seconds                                                 tklbs-transactions-historical-1
-6e963921a6b6   tklbs-message-consumer            "python3 src/main.py"    About a minute ago   Up 5 seconds                                                 tklbs-message-consumer-1
-490de9b99f7e   tklbs-transactions-realtime       "python3 src/main.py"    About a minute ago   Up 5 seconds                                                 tklbs-transactions-realtime-1
-f6b9ad98f60a   confluentinc/cp-kafka:7.6.3       "/etc/confluent/dock…"   About a minute ago   Up 36 seconds (healthy)       9092/tcp                       tklbs-broker-1
-93c91d22f638   tklbs-endpoint-server             "fastapi run src/mai…"   About a minute ago   Up 36 seconds (healthy)       0.0.0.0:8000->8000/tcp         tklbs-endpoint-server-1
-dcedb40378c2   confluentinc/cp-zookeeper:7.6.3   "/etc/confluent/dock…"   About a minute ago   Up About a minute (healthy)   2181/tcp, 2888/tcp, 3888/tcp   tklbs-zookeeper-1
-f93d247fb660   mongo:8.0.3                       "docker-entrypoint.s…"   About a minute ago   Up About a minute (healthy)   27017/tcp                      tklbs-db-1
+bf3b935250ed   tklbs-endpoint-server             "fastapi run src/mai…"   About a minute ago   Up 42 seconds (healthy)       0.0.0.0:8000->8000/tcp         tklbs-endpoint-server-1
+3f35e0e7f66d   tklbs-message-consumer            "python3 src/main.py"    About a minute ago   Up 12 seconds                                                tklbs-message-consumer-1
+a7cdcdcd6191   tklbs-db-indexing-sidecar         "python3 main.py"        About a minute ago   Exited (0) 43 seconds ago                                    tklbs-db-indexing-sidecar-1
+4208ad9a2223   tklbs-transactions-realtime       "python3 src/main.py"    9 minutes ago        Up 12 seconds                                                tklbs-transactions-realtime-1
+1a035e996412   tklbs-transactions-historical     "python3 src/main.py"    About an hour ago    Up 12 seconds                                                tklbs-transactions-historical-1
+f6b9ad98f60a   confluentinc/cp-kafka:7.6.3       "/etc/confluent/dock…"   About an hour ago    Up 43 seconds (healthy)       9092/tcp                       tklbs-broker-1
+dcedb40378c2   confluentinc/cp-zookeeper:7.6.3   "/etc/confluent/dock…"   About an hour ago    Up About a minute (healthy)   2181/tcp, 2888/tcp, 3888/tcp   tklbs-zookeeper-1
+f93d247fb660   mongo:8.0.3                       "docker-entrypoint.s…"   About an hour ago    Up About a minute (healthy)   27017/tcp                      tklbs-db-1
 ```
 
 3. Access the API documentation at `http://localhost:8000/docs`.
@@ -93,10 +94,12 @@ The application is designed to process Ethereum transactions in real-time and hi
 It is composed of the following components:
 
 1. **Message Consumer**: This component consumes messages from a Kafka topic and processes them.
-2. **Transactions Historical**: This component fetches historical transactions in batches from Etherscan and writes them
+2. **Transactions (Historical)**: This component fetches historical transactions in batches from Etherscan and writes them
    to Kafka.
-3. **Transactions Realtime**: This component fetches real-time transactions with Infura and writes them to Kafka.
+3. **Transactions (Realtime)**: This component fetches real-time transactions with Infura and writes them to Kafka.
 4. **Endpoint Server**: This component provides a RESTful interface to query the processed data.
+5. **Database Indexing Sidecar**: This component indexes the fields that are read frequently in MongoDB. Exits after
+   indexing is complete.
 
 ### Architecture Diagram
 
@@ -134,5 +137,5 @@ each request, allowing for real-time data updates.
 When we receive a batch of transactions, either from the historical or real-time component, the transactions often have
 similar timestamps. To avoid requesting for the ETH/USDT price from Binance for each transaction, we cache the price
 for a specific timestamp in memory. This reduces the number of requests made to the Binance API, improving performance.
-The cache is implemented as a LRU cache that stores the last 100 timestamps, with each key having a TTL of 1 minute to
-ensure that the cache does not grow indefinitely.
+The cache acts as a LRU cache that stores the last 100 timestamps, with each key having a TTL of 1 minute to ensure 
+that the cache does not grow indefinitely.
