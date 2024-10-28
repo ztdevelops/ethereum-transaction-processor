@@ -1,0 +1,11 @@
+[run]
+omit =
+    test/*
+    src/app/dto/*
+    src/app/exception/*
+    src/app/model/*
+    src/app/utils/config/*
+    src/app/utils/database/*
+    src/app/utils/enum/*
+    src/app/utils/middleware/*
+    */__init__.py

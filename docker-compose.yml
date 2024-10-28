@@ -78,5 +78,20 @@ services:
       broker:
         condition: service_healthy
 
+  endpoint-server:
+    build:
+      context: ./endpoint-server/
+      dockerfile: Dockerfile
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/api/v1/transactions/healthz" ]
+    env_file:
+      - endpoint-server/.env
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
 volumes:
   mongodb-data:
