@@ -28,6 +28,7 @@ class Config:
                 "KAFKA_BROKER_URL": os.getenv("KAFKA_BROKER_URL", "localhost:9092"),
                 "KAFKA_GROUP_ID": os.getenv("KAFKA_GROUP_ID", "default-group"),
                 "KAFKA_TOPIC": os.getenv("KAFKA_TOPIC", "default-topic"),
+                "MONGODB_URL": os.getenv("MONGODB_URL", "mongodb://localhost:27017/"),
             }
 
         return cls.__instance

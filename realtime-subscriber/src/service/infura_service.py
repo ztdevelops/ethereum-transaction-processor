@@ -119,8 +119,7 @@ class InfuraService:
                 print(f"Received {len(new_events)} new events")
                 for event in new_events:
                     processed_transaction = await self.__process_transaction(event)
-                    print(f"Processed transaction: {processed_transaction}")
-                    self.__broker_service.send("transaction_message", "transactions", processed_transaction)
+                    self.__broker_service.send("", "transactions", processed_transaction)
                 self.__broker_service.flush()
             except Exception as e:
                 print(f"Error: {e}")

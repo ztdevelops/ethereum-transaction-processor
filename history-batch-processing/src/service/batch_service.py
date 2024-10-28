@@ -96,11 +96,12 @@ class BatchService:
         Args:
             batch_request (HistoricalTransactionRequestDTO): The request DTO for fetching a batch of historical Ethereum transactions.
         """
+        print(f"Processing batch from block {batch_request.start_block} to block {batch_request.end_block}.")
         historical_data = self.__etherscan_service.get_historical_data(batch_request)
+        print(f"Found {len(historical_data.get('result'))} transactions in batch.")
         for transaction in historical_data.get("result"):
             processed_transaction = await self.__process_transaction(transaction)
-            print(f"Processed transaction: {processed_transaction}")
-            self.__broker_service.send("", "history", processed_transaction)
+            self.__broker_service.send("", "transactions", processed_transaction)
         self.__broker_service.flush()
 
     async def __process_transaction(self, transaction):

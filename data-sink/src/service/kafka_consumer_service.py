@@ -2,6 +2,11 @@ from confluent_kafka import Consumer
 
 
 class KafkaConsumerService:
+    """
+    A service that consumes messages from a Kafka topic.
+    """
+    __consumer = None
+
     def __init__(self, broker_url: str, group_id: str, topics: list):
         """
         Initializes the KafkaConsumerService with the given broker URL, group ID, topics, and Avro schema.
@@ -12,19 +17,19 @@ class KafkaConsumerService:
             topics (list): The list of topics to subscribe to.
             schema (dict): The Avro schema for deserialization.
         """
-        self.consumer = Consumer({
+        self.__consumer = Consumer({
             'bootstrap.servers': broker_url,
             'group.id': group_id,
             'auto.offset.reset': 'earliest'
         })
-        self.consumer.subscribe(topics)
+        self.__consumer.subscribe(topics)
 
-    async def consume_messages(self):
+    async def consume_messages(self, callback):
         """
         Consumes messages from the subscribed topics and processes them.
         """
         while True:
-            message = self.consumer.poll(timeout=1.0)
+            message = self.__consumer.poll(timeout=1.0)
 
             if message is None:
                 print("No messages received")
@@ -34,7 +39,7 @@ class KafkaConsumerService:
                 print(f"Consumer error: {message.error()}")
                 continue
 
-            self.__process_message(message.value().decode('utf-8'))
+            callback(message)
 
         self.close()
 
@@ -42,10 +47,4 @@ class KafkaConsumerService:
         """
         Closes the Kafka consumer.
         """
-        self.consumer.close()
-
-    def __process_message(self, message):
-        """
-        Processes the received message.
-        """
-        print(f"Received message: {message}")
+        self.__consumer.close()
