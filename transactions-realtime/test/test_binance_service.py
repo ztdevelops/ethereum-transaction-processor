@@ -54,7 +54,3 @@ class TestBinanceService(unittest.TestCase):
             self.mock_ws.recv.assert_called()
 
         asyncio.run(test())
-
-
-if __name__ == '__main__':
-    unittest.main()

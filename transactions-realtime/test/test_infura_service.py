@@ -112,7 +112,3 @@ class TestInfuraService(unittest.TestCase):
             self.assertEqual(self.mock_broker_service.send.call_count, 1)
 
         asyncio.run(test())
-
-
-if __name__ == '__main__':
-    unittest.main()

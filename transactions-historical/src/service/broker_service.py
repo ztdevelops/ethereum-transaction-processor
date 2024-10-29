@@ -20,7 +20,7 @@ class BrokerService:
     __producer = None
     __admin_client = None
 
-    def __init__(self, broker_url: str):
+    def __init__(self, broker_url: str, producer: Producer = None, admin_client: AdminClient = None):
         """
         Initializes the BrokerService with the given broker URL.
 
@@ -28,8 +28,9 @@ class BrokerService:
             broker_url (str): The URL of the broker to connect to.
         """
         self.__broker_url = broker_url
-        self.__producer = Producer({"bootstrap.servers": self.__broker_url})
-        self.__admin_client = AdminClient({"bootstrap.servers": self.__broker_url})
+        self.__producer = producer if producer is not None else Producer({"bootstrap.servers": self.__broker_url})
+        self.__admin_client = admin_client if admin_client is not None else AdminClient(
+            {"bootstrap.servers": self.__broker_url})
         self.__create_topic_if_not_exists("transactions")
 
     def send(self, avro_schema_name: str, topic: str, message: dict):

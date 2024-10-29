@@ -83,7 +83,3 @@ class TestBatchService(unittest.TestCase):
         self.assertEqual(self.mock_broker_service.send.call_count, 30)
         self.assertEqual(self.mock_binance_service.get_ethusdt_price.call_count, 30)
         self.assertEqual(self.mock_broker_service.flush.call_count, 10)
-
-
-if __name__ == '__main__':
-    unittest.main()

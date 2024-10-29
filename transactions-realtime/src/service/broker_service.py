@@ -1,6 +1,8 @@
 import json
 
 from confluent_kafka import Producer
+from confluent_kafka.admin import AdminClient
+from confluent_kafka.cimpl import NewTopic
 from hexbytes import HexBytes
 from web3.datastructures import AttributeDict
 
@@ -12,11 +14,13 @@ class BrokerService:
     Attributes:
         __broker_url (str): The URL of the broker to connect to.
         __producer (Producer): The Kafka producer instance.
+        __admin_client (AdminClient): The Kafka admin client instance.
     """
     __broker_url = None
     __producer = None
+    __admin_client = None
 
-    def __init__(self, broker_url: str):
+    def __init__(self, broker_url: str, producer: Producer = None, admin_client: AdminClient = None):
         """
         Initializes the BrokerService with the given broker URL.
 
@@ -24,14 +28,17 @@ class BrokerService:
             broker_url (str): The URL of the broker to connect to.
         """
         self.__broker_url = broker_url
-        self.__producer = Producer({"bootstrap.servers": self.__broker_url})
+        self.__producer = producer if producer is not None else Producer({"bootstrap.servers": self.__broker_url})
+        self.__admin_client = admin_client if admin_client is not None else AdminClient(
+            {"bootstrap.servers": self.__broker_url})
+        self.__create_topic_if_not_exists("transactions")
 
     def send(self, avro_schema_name: str, topic: str, message: dict):
         """
         Sends a message to the given topic.
 
         Args:
-            avro_schema_name (str): The name of the Avro schema to use for serialisation.
+            avro_schema_name (str): The name of the Avro schema to use for serialization.
             topic (str): The topic to send the message to.
             message (dict): The message to send.
         """
@@ -64,3 +71,20 @@ class BrokerService:
         elif isinstance(attr_dict, HexBytes):
             return attr_dict.hex()
         return attr_dict
+
+    def __create_topic_if_not_exists(self, topic: str, num_partitions: int = 1, replication_factor: int = 1):
+        """
+        Creates a Kafka topic if it does not exist.
+
+        Args:
+            topic (str): The name of the topic to create.
+            num_partitions (int): The number of partitions for the topic.
+            replication_factor (int): The replication factor for the topic.
+        """
+        topic_metadata = self.__admin_client.list_topics(timeout=10)
+        if topic not in topic_metadata.topics:
+            new_topic = NewTopic(topic, num_partitions=num_partitions, replication_factor=replication_factor)
+            self.__admin_client.create_topics([new_topic])
+            print(f"Topic '{topic}' created.")
+        else:
+            print(f"Topic '{topic}' already exists.")
