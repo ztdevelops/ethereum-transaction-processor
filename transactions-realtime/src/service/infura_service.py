@@ -4,11 +4,12 @@ from hexbytes import HexBytes
 from service.binance_service import BinanceService
 from service.broker_service import BrokerService
 from service.etherscan_service import EtherscanService
-from utils.config import Config
 from utils.eth_util import EthUtil
 from web3 import AsyncWeb3
 from web3.datastructures import AttributeDict
 from web3.providers import WebSocketProvider
+
+from utils.config import Config
 
 config = Config()
 
@@ -40,10 +41,8 @@ class InfuraService:
                  etherscan_service: EtherscanService,
                  broker_service: BrokerService,
                  binance_service: BinanceService,
-                 infura_project_id: str,
-                 contract_address: str = None,
-                 contract_abi_address: str = None,
-                 poll_interval: int = None
+                 config: Config,
+                 async_web3: AsyncWeb3 = None
                  ):
         """
         Initialize the InfuraService with the given API key.
@@ -52,31 +51,17 @@ class InfuraService:
             etherscan_service (EtherscanService): An instance of the EtherscanService.
             broker_service (BrokerService): An instance of the BrokerService.
             binance_service (BinanceService): An instance of the BinanceService.
-            infura_project_id (str): The API key for authenticating requests to the Infura API.
-            contract_address (str, optional): The address of the contract to listen for events. Defaults to None.
-            contract_abi_address (str, optional): The address to fetch the contract ABI from. Defaults to None.
-            poll_interval (int, optional): The interval in seconds to poll for new events. Defaults to None.
+            config (Config): An instance of the Config class.
         """
         self.__etherscan_service = etherscan_service
         self.__broker_service = broker_service
         self.__binance_service = binance_service
-        self.__infura_project_id = infura_project_id
-        self.__poll_interval = poll_interval
-
-        if contract_address is None:
-            self.__contract_address = config.get("ETHERSCAN_CONTRACT_ADDRESS")
-        else:
-            self.__contract_address = contract_address
-
-        if contract_abi_address is None:
-            self.__contract_abi_address = config.get("ETHERSCAN_CONTRACT_ABI_ADDRESS")
-        else:
-            self.__contract_abi_address = contract_abi_address
-
-        if poll_interval is None:
-            self.__poll_interval = int(config.get("INFURA_POLL_INTERVAL"))
-        else:
-            self.__poll_interval = poll_interval
+        self.__infura_project_id = config.get("INFURA_PROJECT_ID")
+        self.__poll_interval = int(config.get("INFURA_POLL_INTERVAL"))
+        self.__contract_address = config.get("ETHERSCAN_CONTRACT_ADDRESS")
+        self.__contract_abi_address = config.get("ETHERSCAN_CONTRACT_ABI_ADDRESS")
+        self.__async_web3 = async_web3
+        self.__is_listening = False
 
     async def __ws_connect(self):
         """
@@ -85,7 +70,7 @@ class InfuraService:
         Returns:
             AsyncWeb3: A Web3 instance connected to the Infura provider.
         """
-        if self.__async_web3:
+        if self.__is_listening or self.__async_web3 is not None:
             return
 
         web3_provider_url = self.__create_web3_provider_url()
@@ -110,6 +95,7 @@ class InfuraService:
             address (str): The address to listen for swap events.
             contract_abi (list): The ABI of the contract to listen for swap events.
         """
+        self.__is_listening = True
         contract = self.__async_web3.eth.contract(address=address, abi=contract_abi)
         swap_event_filter = await contract.events.Swap.create_filter(from_block='latest')
 

@@ -23,27 +23,32 @@ class BinanceService:
     __pending_requests = None
     __ethusdt_cache = None
 
-    def __init__(self, cache_ttl: int = 60):
+    def __init__(self, ws: websockets.WebSocketClientProtocol = None, cache_ttl: int = 60):
         """
         Initializes the BinanceService instance.
 
         Args:
+            ws: websockets.WebSocketClientProtocol: The WebSocket connection to the Binance API.
             cache_ttl (int): Time-to-live for cache entries in seconds. Defaults to 60 seconds.
         """
+        self.__ws = ws
         self.__pending_requests = {}
         self.__ethusdt_cache = TTLCache(maxsize=100, ttl=cache_ttl)
+        self.is_listening = False
 
     async def __ws_connect(self):
         """
         Establishes a WebSocket connection to the Binance API if not already connected.
         """
-        if self.__ws:
+        if self.is_listening:
             return
 
-        self.__ws = await websockets.connect(self.BINANCE_API_BASE_URL)
+        if self.__ws is None:
+            self.__ws = await websockets.connect(self.BINANCE_API_BASE_URL)
+
         asyncio.create_task(self.__listen())
 
-    async def get_ethusdt_price(self, timestamp: int):
+    async def get_ethusdt_price(self, timestamp: int, request_id: uuid.UUID = None):
         """
         Fetches the ETH/USDT price at a given timestamp.
 
@@ -57,7 +62,9 @@ class BinanceService:
             return self.__ethusdt_cache[timestamp]
 
         await self.__ws_connect()
-        request_id = uuid.uuid4()
+        if request_id is None:
+            request_id = uuid.uuid4()
+
         payload = {
             "id": str(request_id),
             "method": "klines",
@@ -69,9 +76,12 @@ class BinanceService:
             }
         }
 
-        self.__pending_requests[request_id] = asyncio.Future()
+        if request_id not in self.__pending_requests:
+            self.__pending_requests[request_id] = asyncio.Future()
+
         await self.__ws.send(json.dumps(payload))
         response = await self.__pending_requests[request_id]
+        del self.__pending_requests[request_id]
         close_price = float(response["result"][0][4])
 
         self.__ethusdt_cache[timestamp] = close_price
@@ -81,9 +91,18 @@ class BinanceService:
         """
         Listens for incoming messages from the WebSocket and processes them.
         """
+        self.is_listening = True
         while True:
-            response = await self.__ws.recv()
-            response = json.loads(response)
-            request_id = uuid.UUID(response["id"])
-            self.__pending_requests[request_id].set_result(response)
-            del self.__pending_requests[request_id]
+            try:
+                response = await self.__ws.recv()
+                response = json.loads(response)
+                request_id = uuid.UUID(response["id"])
+
+                if request_id not in self.__pending_requests:
+                    self.__pending_requests[request_id] = asyncio.Future()
+                if not self.__pending_requests[request_id].done():
+                    self.__pending_requests[request_id].set_result(response)
+            except Exception as e:
+                print(f"Error: {e}")
+            finally:
+                await asyncio.sleep(0.1)

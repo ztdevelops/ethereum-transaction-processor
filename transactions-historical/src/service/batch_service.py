@@ -2,10 +2,9 @@ from dto.historical_transaction_request_dto import HistoricalTransactionRequestD
 from service.binance_service import BinanceService
 from service.broker_service import BrokerService
 from service.etherscan_service import EtherscanService
-from utils.config import Config
 from utils.eth_util import EthUtil
 
-config = Config()
+from utils.config import Config
 
 
 class BatchService:
@@ -26,14 +25,13 @@ class BatchService:
     __first_block = None
     __last_block = None
     __batch_size = None
+    __etherscan_contract_address = None
 
     def __init__(self,
                  etherscan_service: EtherscanService,
                  broker_service: BrokerService,
                  binance_service: BinanceService,
-                 first_block: int = None,
-                 last_block: int = None,
-                 batch_size: int = None,
+                 config: Config
                  ):
         """
         Initializes the BatchService with the given EtherscanService and BrokerService.
@@ -49,21 +47,10 @@ class BatchService:
         self.__etherscan_service = etherscan_service
         self.__broker_service = broker_service
         self.__binance_service = binance_service
-
-        if first_block is None:
-            self.__first_block = int(config.get("ETHERSCAN_HISTORICAL_FIRST_BLOCK"))
-        else:
-            self.__first_block = first_block
-
-        if last_block is None:
-            self.__last_block = int(config.get("ETHERSCAN_HISTORICAL_LAST_BLOCK"))
-        else:
-            self.__last_block = last_block
-
-        if batch_size is None:
-            self.__batch_size = int(config.get("ETHERSCAN_HISTORICAL_BATCH_SIZE"))
-        else:
-            self.__batch_size = batch_size
+        self.__first_block = int(config.get("ETHERSCAN_HISTORICAL_FIRST_BLOCK"))
+        self.__last_block = int(config.get("ETHERSCAN_HISTORICAL_LAST_BLOCK"))
+        self.__batch_size = int(config.get("ETHERSCAN_HISTORICAL_BATCH_SIZE"))
+        self.__etherscan_contract_address = config.get("ETHERSCAN_CONTRACT_ADDRESS")
 
     async def start(self):
         """
@@ -77,7 +64,7 @@ class BatchService:
 
         while start_block < self.__last_block:
             batch_request = HistoricalTransactionRequestDTO(
-                address=config.get("ETHERSCAN_CONTRACT_ADDRESS"),
+                address=self.__etherscan_contract_address,
                 start_block=start_block,
                 end_block=end_block,
                 page=1,

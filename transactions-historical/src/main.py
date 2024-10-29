@@ -20,7 +20,12 @@ etherscan_api_key = config.get("ETHERSCAN_API_KEY")
 etherscan_service = EtherscanService(etherscan_api_key)
 
 # Initialising Batch service
-batch_service = BatchService(etherscan_service, broker_service, binance_service)
+batch_service = BatchService(
+    etherscan_service,
+    broker_service,
+    binance_service,
+    config
+)
 
 # Listen for events
 asyncio.run(batch_service.start())

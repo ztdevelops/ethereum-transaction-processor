@@ -7,7 +7,6 @@ on:
 jobs:
   run-transactions-realtime-unit-tests:
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -22,4 +21,22 @@ jobs:
       - name: Run tests
         run: |
           cd transactions-realtime
-          coverage run -m unittest discover
+          PYTHONPATH=$(pwd)/src coverage run -m unittest discover
+
+  run-transactions-historical-unit-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          cd transactions-historical
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage==7.6.1
+      - name: Run tests
+        run: |
+          cd transactions-historical
+          PYTHONPATH=$(pwd)/src coverage run -m unittest discover

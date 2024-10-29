@@ -24,7 +24,7 @@ infura_service = InfuraService(
     etherscan_service,
     broker_service,
     binance_service,
-    config.get("INFURA_PROJECT_ID")
+    config
 )
 
 # Listen for events
