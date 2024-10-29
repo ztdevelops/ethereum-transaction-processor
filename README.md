@@ -88,6 +88,10 @@ f93d247fb660   mongo:8.0.3                       "docker-entrypoint.s…"   Abou
 docker compose -p tklbs down -v
 ```
 
+5. Testing the application:
+   The tests can be viewed as part of GitHub
+   Actions [here](https://github.com/ztdevelops/tokka-labs-software-engineering-challenge-1/actions).
+
 ## Design Considerations
 
 The application is designed to process Ethereum transactions in real-time and historical data.
