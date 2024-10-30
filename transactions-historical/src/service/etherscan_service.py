@@ -35,7 +35,7 @@ class EtherscanService:
         params = {
             "module": "account",
             "action": "tokentx",
-            "contractaddress": request.address,
+            "address": request.address,
             "page": request.page,
             "offset": request.offset,
             "startblock": request.start_block,

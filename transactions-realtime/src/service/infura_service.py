@@ -1,4 +1,6 @@
 import asyncio
+import json
+import os
 
 from hexbytes import HexBytes
 from service.binance_service import BinanceService
@@ -59,7 +61,6 @@ class InfuraService:
         self.__infura_project_id = config.get("INFURA_PROJECT_ID")
         self.__poll_interval = int(config.get("INFURA_POLL_INTERVAL"))
         self.__contract_address = config.get("ETHERSCAN_CONTRACT_ADDRESS")
-        self.__contract_abi_address = config.get("ETHERSCAN_CONTRACT_ABI_ADDRESS")
         self.__async_web3 = async_web3
         self.__is_listening = False
 
@@ -121,12 +122,15 @@ class InfuraService:
         """
         await self.__ws_connect()
 
-        contract_abi_response = self.__etherscan_service.get_contract_abi(self.__contract_abi_address)
-        if contract_abi_response is None:
-            print("Failed to retrieve contract ABI, aborting async listening...")
-            return
+        # contract_abi_response = self.__etherscan_service.get_contract_abi(self.__contract_abi_address)
+        # if contract_abi_response is None:
+        #     print("Failed to retrieve contract ABI, aborting async listening...")
+        #     return
+        #
+        # contract_abi = contract_abi_response.get("result")
+        with open(os.path.join(os.path.dirname(__file__), 'contract-abi.json'), 'r') as file:
+            contract_abi = json.load(file)
 
-        contract_abi = contract_abi_response.get("result")
         await self.__listen_for_swaps(
             address=self.__contract_address,
             contract_abi=contract_abi,
