@@ -5,4 +5,5 @@ WORKDIR /app
 ADD requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 ADD src/ src/
+ADD test/ test/
 CMD ["python3", "src/main.py"]

@@ -1,8 +1,11 @@
+import asyncio
 from typing import List
 
 from confluent_kafka import Consumer
 from confluent_kafka.admin import AdminClient
 from confluent_kafka.cimpl import NewTopic
+
+from utils.config import Config
 
 
 class KafkaConsumerService:
@@ -16,24 +19,27 @@ class KafkaConsumerService:
     __consumer = None
     __admin_client = None
 
-    def __init__(self, broker_url: str, group_id: str, topics: list):
+    def __init__(self, config: Config, consumer: Consumer = None, admin_client: AdminClient = None):
         """
         Initializes the KafkaConsumerService with the given broker URL, group ID, topics, and Avro schema.
 
         Args:
-            broker_url (str): The URL of the Kafka broker to connect to.
-            group_id (str): The consumer group ID.
-            topics (list): The list of topics to subscribe to.
-            schema (dict): The Avro schema for deserialization.
+            config (Config): The application configuration.
+            consumer (Consumer): The Kafka consumer instance.
+            admin_client (AdminClient): The Kafka admin client instance.
         """
-        self.__consumer = Consumer({
-            'bootstrap.servers': broker_url,
-            'group.id': group_id,
+        self.__consumer = consumer if consumer is not None else Consumer({
+            'bootstrap.servers': config.get("KAFKA_BROKER_URL"),
+            'group.id': config.get("KAFKA_GROUP_ID"),
             'auto.offset.reset': 'earliest'
         })
-        self.__admin_client = AdminClient({'bootstrap.servers': broker_url})
-        self.__create_topics_if_not_exists(topics)
 
+        self.__admin_client = admin_client if admin_client is not None else AdminClient({
+            'bootstrap.servers': config.get("KAFKA_BROKER_URL")
+        })
+
+        topics = config.get("KAFKA_TOPIC").split(",")
+        self.__create_topics_if_not_exists(topics)
         self.__consumer.subscribe(topics)
 
     async def consume_messages(self, callback):
@@ -41,17 +47,21 @@ class KafkaConsumerService:
         Consumes messages from the subscribed topics and processes them.
         """
         while True:
-            message = self.__consumer.poll(timeout=1.0)
+            try:
+                message = self.__consumer.poll(timeout=1.0)
 
-            if message is None:
-                print("No messages received")
-                continue
+                if message is None:
+                    print("No messages received")
+                    continue
 
-            if message.error():
-                print(f"Consumer error: {message.error()}")
-                continue
+                if message.error():
+                    raise Exception(f"Consumer error: {message.error()}")
 
-            callback(message)
+                callback(message)
+            except Exception as e:
+                print(f"Error: {e}")
+            finally:
+                await asyncio.sleep(0.1)
 
         self.close()
 

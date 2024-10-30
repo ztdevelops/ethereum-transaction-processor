@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import status
 
+from exception.invalid_range_exception import InvalidRangeException
+from exception.transaction_not_found_exception import TransactionNotFoundException
 from service.transactions_service import TransactionsService
 
 router = APIRouter()
@@ -79,6 +81,11 @@ class TransactionsController:
         """
         try:
             return self.__transactions_service.get_record_by_transaction_hash(transaction_hash)
+        except TransactionNotFoundException as e:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=str(e),
+            )
         except Exception as e:
             print(f"Error: {e}")
             raise HTTPException(
@@ -111,6 +118,11 @@ class TransactionsController:
         try:
             return self.__transactions_service.get_records_between_timestamps(start_timestamp, end_timestamp, page,
                                                                               page_size)
+        except InvalidRangeException as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e),
+            )
         except Exception as e:
             print(f"Error: {e}")
             raise HTTPException(

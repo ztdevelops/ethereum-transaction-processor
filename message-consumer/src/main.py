@@ -15,9 +15,7 @@ transactions_service = TransactionsService(transactions_repository)
 
 # Initialise the Kafka consumer service
 consumer_service = KafkaConsumerService(
-    config.get("KAFKA_BROKER_URL"),
-    config.get("KAFKA_GROUP_ID"),
-    [config.get("KAFKA_TOPIC")]
+    config
 )
 
 # Consume messages from the Kafka topic

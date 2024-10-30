@@ -2,6 +2,8 @@ import traceback
 
 from dto.get_transaction_response_dto import GetTransactionResponseDTO
 from dto.get_transactions_response_dto import GetTransactionsResponseDTO
+from exception.invalid_range_exception import InvalidRangeException
+from exception.transaction_not_found_exception import TransactionNotFoundException
 from repository.transactions_repository import TransactionsRepository
 
 
@@ -42,7 +44,11 @@ class TransactionsService:
         Returns:
             GetTransactionResponseDTO: The transaction data transfer object.
         """
+
         transaction = self.__transactions_repository.find_transaction_by_hash(transaction_hash)
+        if transaction is None:
+            raise TransactionNotFoundException(f"Transaction with hash {transaction_hash} not found")
+
         return GetTransactionResponseDTO(**transaction)
 
     def get_records_between_timestamps(self, start_timestamp: int, end_timestamp: int, page: int, page_size: int):
@@ -62,6 +68,9 @@ class TransactionsService:
             Exception: If an error occurs while retrieving the transactions.
         """
         try:
+            if start_timestamp > end_timestamp:
+                raise InvalidRangeException("Start timestamp must be less than or equal to end timestamp")
+
             limit = page_size
             offset = (page - 1) * page_size
 

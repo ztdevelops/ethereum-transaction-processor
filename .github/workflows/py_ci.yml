@@ -40,3 +40,39 @@ jobs:
         run: |
           cd transactions-historical
           PYTHONPATH=$(pwd)/src coverage run -m unittest discover
+
+  run-message-consumer-unit-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          cd message-consumer
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage==7.6.1
+      - name: Run tests
+        run: |
+          cd message-consumer
+          PYTHONPATH=$(pwd)/src coverage run -m unittest discover
+
+  run-endpoint-server-unit-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          cd endpoint-server
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage==7.6.1
+      - name: Run tests
+        run: |
+          cd endpoint-server
+          PYTHONPATH=$(pwd)/src coverage run -m unittest discover
