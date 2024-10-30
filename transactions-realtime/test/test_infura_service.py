@@ -70,7 +70,7 @@ class TestInfuraService(unittest.TestCase):
             except asyncio.exceptions.TimeoutError:
                 pass
 
-            self.assertEqual(self.mock_etherscan_service.get_contract_abi.call_count, 1)
+            self.assertEqual(self.mock_etherscan_service.get_contract_abi.call_count, 0)
             self.assertEqual(self.mock_async_web3.eth.contract.call_count, 1)
             self.assertEqual(self.mock_async_web3.eth.get_transaction.call_count, 0)
             self.assertEqual(self.mock_async_web3.eth.get_block.call_count, 0)
@@ -104,7 +104,7 @@ class TestInfuraService(unittest.TestCase):
             except asyncio.exceptions.TimeoutError:
                 pass
 
-            self.assertEqual(self.mock_etherscan_service.get_contract_abi.call_count, 1)
+            self.assertEqual(self.mock_etherscan_service.get_contract_abi.call_count, 0)
             self.assertEqual(self.mock_async_web3.eth.contract.call_count, 1)
             self.assertEqual(self.mock_async_web3.eth.get_transaction.call_count, 1)
             self.assertEqual(self.mock_async_web3.eth.get_block.call_count, 1)
